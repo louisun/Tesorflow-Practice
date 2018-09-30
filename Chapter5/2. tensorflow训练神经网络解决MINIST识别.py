@@ -69,6 +69,7 @@ def train(mnist):
         tf.trainable_variables() # 返回 GraphKeys.TRAINABLE_VARIABLES 中的元素
     ) 
     # 到底什么是滑动平均？让这些参数在训练初期更新快，在接近最优值处更新慢，动态控制参数的更新幅度
+    # 滑动平均模型，和指数衰减的学习率在一定程度上都是限制参数更新的速度
     
     average_y = inference(
         x, variable_averages, weights1, biases1, weights2, biases2
@@ -145,8 +146,8 @@ def train(mnist):
         print("After %d training step(s), test accuracy using average model is %g " % (TRAINING_STEPS, test_acc))
 
 def main(argv=None):
-    # mnist = input_data.read_data_sets("/tmp/data", one_hot=True) # 第一个参数是存放数据的位置，采用 one_hot 编码
-    mnist = input_data.read_data_sets("/Users/louisun/Projects/MachineLearning/MLPersonalRoot/tensorflow_notes/datasets/MNIST_data/", one_hot=True)
+    mnist = input_data.read_data_sets("/tmp/data", one_hot=True) # 第一个参数是存放数据的位置，采用 one_hot 编码
+    # mnist = input_data.read_data_sets("/Users/louisun/Projects/MachineLearning/MLPersonalRoot/tensorflow_notes/datasets/MNIST_data/", one_hot=True)
     
     train(mnist)
 
