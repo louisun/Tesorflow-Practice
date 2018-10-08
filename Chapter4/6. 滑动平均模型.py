@@ -14,6 +14,9 @@ shadow_variable = decay * shadow_variable + (1-decay)*variable
 如果 ExponentialMovingAverage 初始化时提供了 num_updates 参数
 动态设置 decay 的大小，每次使用的衰减率为：
 min{decay, (1+num_updates)/(10+num_updates)}
+
+
+
 '''
 
 import tensorflow as tf
@@ -27,7 +30,7 @@ step = tf.Variable(0, trainable=False) # trainable=False，Optimizer不会优化
 # 滑动平均类，衰减率0.99，控制率的变量 step
 ema = tf.train.ExponentialMovingAverage(0.99, step)
 
-# 定义一个更新变量滑动平均的操作，这里需要给定一个列表，每次执行这个操作时这个列表的变量都会被更新。
+# 定义一个更新变量滑动平均的操作，这里需要给定一个列表，每次执行这个操作时这个列表的影子变量都会被更新。
 maintain_averages_op = ema.apply([v1])
 
 with tf.Session() as sess:

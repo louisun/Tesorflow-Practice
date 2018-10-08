@@ -1,3 +1,9 @@
+'''
+inference 即前向传播
+创建两个weight矩阵变量
+如果使用 regularizer，在创建变量的时候添加该权重的正则化项目到 losses 集合
+前向传播，返回结果
+'''
 import tensorflow as tf
 
 INPUT_NODE = 784

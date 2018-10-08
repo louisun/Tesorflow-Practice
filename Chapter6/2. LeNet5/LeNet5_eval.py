@@ -10,8 +10,8 @@
 import time
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
-import mnist_inference
-import mnist_train
+import LeNet5_inference
+import LeNet5_train
 
 
 # 每 10 秒加载一次最新的模型，并在验证集上测试最新模型的正确率
@@ -19,18 +19,32 @@ EVAL_INTERVAL_SECS = 10
 
 def evaluate(mnist):
     with tf.Graph().as_default() as g:
-        x = tf.placeholder(tf.float32, [None, mnist_inference.INPUT_NODE], name='x-input')
-        y_ = tf.placeholder(tf.float32, [None, mnist_inference.OUTPUT_NODE], name='y-input')
+        x = tf.placeholder(tf.float32, [
+            None,
+            LeNet5_inference.IMAGE_SIZE,
+            LeNet5_inference.IMAGE_SIZE,
+            LeNet5_inference.NUM_CHANNELS],
+            name='x-input')
+
+        y_ = tf.placeholder(tf.float32, [None, LeNet5_inference.OUTPUT_NODE], name='y-input')
         # 在整个验证集上验证
-        validate_feed = {x: mnist.validation.images, y_: mnist.validation.labels}
+        validate_feed = {
+            x: mnist.validation.images.reshape(
+                None,
+                LeNet5_inference.IMAGE_SIZE,
+                LeNet5_inference.IMAGE_SIZE,
+                LeNet5_inference.NUM_CHANNELS), 
+            y_: mnist.validation.labels
+        }
+        
         # 预测 y，计算准确率
-        y = mnist_inference.inference(x, None)
+        y = LeNet5_inference.inference(x, False, None) # 测试时，train=False
         correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
         # 通过变量重命名方式来加载模型，在前向传播的过程中不需要调用求滑动平均的函数(apply)来获取平均值
         # 所以这里用于计算正则化损失的函数被设置为 None 
-        variable_averages = tf.train.ExponentialMovingAverage(mnist_train.MOVING_AVERAGE_DECAY)
+        variable_averages = tf.train.ExponentialMovingAverage(LeNet5_train.MOVING_AVERAGE_DECAY)
         variables_to_restore = variable_averages.variables_to_restore() # 把我们的滑动平均值恢复到当前变量
         # {'v/ExponentialMovingAverage': <tf.Variable 'v:0' shape=() dtype=float32_ref>}
         saver = tf.train.Saver(variables_to_restore) # 指定要从持久化模型中恢复的变量
@@ -39,7 +53,7 @@ def evaluate(mnist):
         while True:
             with tf.Session() as sess:
                 # get_checkpoint_state 会自动从 checkpoint 文件自动找到目录中最新模型的文件名
-                ckpt = tf.train.get_checkpoint_state(mnist_train.MODEL_SAVE_PATH)
+                ckpt = tf.train.get_checkpoint_state(LeNet5_train.MODEL_SAVE_PATH)
                 if ckpt and ckpt.model_checkpoint_path:
                     saver.restore(sess, ckpt.model_checkpoint_path) # 从该ckpt加载模型，然后计算该 global_step 的准确度
                     # for v in tf.global_variables():
