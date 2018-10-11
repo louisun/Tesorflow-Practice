@@ -46,6 +46,8 @@ def inference(input_tensor, train, regularizer):
     # 第四层池化层的输出要转为全连接层的输入
     with tf.name_scope("layer4-pool2"):
         pool2 = tf.nn.max_pool(relu2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        # tf.shape 将矩阵的维度输出为一个维度矩阵
+        # s.shape和x.get_shape()都是返回TensorShape类型对象，而tf.shape(x)返回的是Tensor类型对象
         # tf.shape(pool2) 返回的是Tensorflow里面的张量，而 pool.get_shape() 返回的是元祖 TensorShape([Dimension(?), Dimension(7), Dimension(7), Dimension(64)])
         # 注意每层神经网络的输入输出都是一个 batch 的矩阵，所以第一个维度（下标为0）包含的是每批 batch 数据的个数(多少个样本) 
         pool_shape = pool2.get_shape().as_list() # 将上面的元祖转为真正的数值 shape  [batch_num, 7,7,64]
